@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+    nginx:
+        image: nginx:alpine
+        ports:
+            - "80:80"
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+        depends_on:
+            - app1
+            - app2
+            - app3
+        networks:
+            - microsservicos-net
+
+    app1:
+        build: ./apps/app1
+        expose:
+            - "3001"
+        networks:
+            - microsservicos-net
+
+    app2:
+        build: ./apps/app2
+        expose:
+            - "3002"
+        networks:
+            - microsservicos-net
+
+    app3:
+        build: ./apps/app3
+        expose:
+            - "3003"
+        networks:
+            - microsservicos-net
+
+    mysql:
+        image: mysql:8.0
+        environment:
+            MYSQL_ROOT_PASSWORD: Koyum@2211
+            MYSQL_DATABASE: microsservicos
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+            - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - microsservicos-net
+
+volumes:
+    mysql_data:
+
+networks:
+    microsservicos-net:
+        driver: bridge
